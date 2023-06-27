@@ -40,6 +40,21 @@ def home_page(page_index):
 
 @use_scope("main", clear=True)
 def view_page(book, index):
-    #book   = all_books.books[book_index]
+    if index < 0:
+        index = 0
+    if index >= len(book.images):
+        index = len(book.images) - 3
+
     images = book.images[index : index+2]
-    put_row([put_image(img.read()) for img in images])
+    it_imgs = [put_image(img.read()) for img in images]
+    it_imgs.insert(1, None)
+
+    it_buts = [
+        put_button("Previous Page", onclick=lambda: view_page(book, index - 2)),
+        None,
+        put_button("Next Page", onclick=lambda: view_page(book, index + 2)),
+    ]
+    put_column([ put_row(it_imgs, size="48% 4% 48%"),
+                 put_row(it_buts, size="2fr 8fr 2fr") ],
+               size="9fr 1fr")
+
