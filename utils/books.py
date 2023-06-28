@@ -49,5 +49,6 @@ class BooksInfo:
         dirs = [d for d in os.listdir(path) if os.path.isdir(join(path, d)) ]
         books = [ BookInfo(join(path, d)) for d in dirs ]
         print(str(len(books)) + " books found in " + path)
+        books.sort(key=lambda b: b.name)
         self.books += books
 
