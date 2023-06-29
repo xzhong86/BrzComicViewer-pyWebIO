@@ -2,6 +2,7 @@
 import os
 from os.path import isfile, join
 
+import yaml
 import re
 
 class ImageInfo:
@@ -36,6 +37,17 @@ class BookInfo:
         imgs  = [f for f in files if re_ext.search(f) ]
         imgs.sort()
         self.images = [ ImageInfo(_dir, img) for img in imgs ]
+
+        self.url = None
+        self.title = self.name
+        self.tags = None
+        info_file = join(_dir, "info.yaml")
+        if (isfile(info_file)):
+            with open(info_file) as stream:
+                info = yaml.safe_load(stream)
+                self.url   = info[':url']
+                self.title = info[':title']
+                self.tags  = info[':tags']
 
     def tryUnpackBook(self):
         raise "to be done"
