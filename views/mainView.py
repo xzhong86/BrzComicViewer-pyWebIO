@@ -1,5 +1,7 @@
 import os
 import pywebio
+from pywebio.pin import  *
+from pywebio.input import  *
 from pywebio.output import  *
 from pywebio.session import local as web_local
 
@@ -27,7 +29,7 @@ def view():
     #        None
     #    ], size="2fr 3fr 3fr 5fr")
     put_row([put_scope("main"), None, put_scope("sidebar")],
-               size="13fr 0.3fr 1fr")
+               size="13fr 0.3fr 0.8fr")
 
     web_local.home_page_index = 0
     web_local.view_page_index = 0
@@ -67,13 +69,25 @@ def home_page(index = None):
     no_prev = index - BPP < 0
     no_next = index + 1 >= len(books)
     buttons = [
-        put_text(str(index) + "/" + str(int(len(books) / BPP))),
+        put_text(str(index) + "/" + str(len(books))),
+        put_input("goto", type=NUMBER, value=index),
+        put_button("Go", onclick=home_page_goto),
+        None,
         #put_button("\u2302", onclick=lambda: home_page(0)),
         put_button("\u21E4", onclick=lambda: home_page(0), disabled=(index == 0)),  # goto head
         put_button("\u2190", onclick=home_page_prev, disabled=no_prev),
         put_button("\u2192", onclick=home_page_next, disabled=no_next),
     ]
     side_bar(buttons)
+
+def home_page_goto():
+    index = pin.goto
+    index = index if index > 0 else 0
+    if (index >= len(all_books.books)):
+        toast("book index over max!")
+    else:
+        index = index - index % HOME_BPP
+        home_page(index)
 
 def home_page_prev():
     index = web_local.home_page_index - HOME_BPP
