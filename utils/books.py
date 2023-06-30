@@ -1,9 +1,11 @@
 
 import os
+import re
 from os.path import isfile, join
 
 import yaml
-import re
+
+from utils import unpack
 
 class ImageInfo:
     def __init__(self, dir_path, fname):
@@ -16,7 +18,10 @@ class ImageInfo:
             print("bad path: " + self.path)
         else:
             print("read file: " + self.path)
-        return open(self.path, 'rb').read()
+        fh = open(self.path, 'rb')
+        content = fh.read()
+        fh.close()
+        return content
 
 
 class BookInfo:
@@ -26,6 +31,8 @@ class BookInfo:
             tryUnpackBook()
         elif (os.path.isdir(path)):
             self.dir_path = path
+        else:
+            raise "what happened?"
 
         self.name = os.path.basename(path)
         self.scanDir()
@@ -40,7 +47,7 @@ class BookInfo:
 
         self.url = None
         self.title = self.name
-        self.tags = None
+        self.tags = [ ]
         info_file = join(_dir, "info.yaml")
         if (isfile(info_file)):
             with open(info_file) as stream:
@@ -63,4 +70,19 @@ class BooksInfo:
         print(str(len(books)) + " books found in " + path)
         books.sort(key=lambda b: b.name)
         self.books += books
+
+    def scanImagePackInPath(self, dirpath):
+        unpack_root = "books"
+        zip_re = re.compile("\.(zip|rar|cbz|cbr)$")
+        for item in os.listdir(dirpath):
+            item_path = join(dirpath, item)
+            if (os.path.isfile(item_path) and zip_re.search(item)):
+                bkdir = unpack.unpack_file(item_path, unpack_root)
+                if (bkdir != None):
+                    book  = BookInfo(bkdir)
+                    self.books.append(book)
+
+            elif (os.path.isdir(item_path)):
+                self.scanImagePackInPath(item_path)
+                
 

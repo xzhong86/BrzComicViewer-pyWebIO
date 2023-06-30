@@ -12,7 +12,8 @@ from utils.books import BooksInfo
 
 
 all_books = BooksInfo()
-all_books.scanImageFolderInPath("./books")
+#all_books.scanImageFolderInPath("./books")
+all_books.scanImagePackInPath("./packs-cn")
 
 def view():
     pywebio.session.set_env(output_max_width="90%")
