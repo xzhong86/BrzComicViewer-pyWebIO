@@ -139,6 +139,7 @@ def view_page(book, index):
     buttons = [
         put_text(str(index) + "/" + str(len(book.images))),
         put_button("\u2302", onclick=lambda: home_page(None)),
+        put_button("\u2139", onclick=lambda: view_book_info(book)),
         put_button("\u219e", onclick=lambda: toast("prev book")),
         put_button("\u21a0", onclick=lambda: toast("next book")),
         put_button("\u21E4", onclick=lambda: view_page(book, 0), disabled=(index == 0)),  # goto head
@@ -146,3 +147,17 @@ def view_page(book, index):
         put_button("\u2192", onclick=lambda: view_page(book, index + 2), disabled=no_next_page),
     ]
     side_bar(buttons)
+
+def view_book_info(book):
+    info = put_table([
+        ["Attr",   "Description"],
+        ["title:", book.title],
+        ["url:",   book.url],
+        ["tags:",  ", ".join(book.tags)],
+        ["dir:",   book.name],
+        ["other:", str(len(book.images)) + " images"]
+    ])
+    popup("Book Information:",
+          info,
+          size="normal")
+
