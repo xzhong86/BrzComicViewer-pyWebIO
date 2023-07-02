@@ -3,6 +3,7 @@ import os
 import re
 from os.path import isfile, join
 
+import humanize
 import yaml
 
 from utils import unpack
@@ -16,12 +17,14 @@ class ImageInfo:
     def read(self):
         if (not isfile(self.path)):
             print("bad path: " + self.path)
+            return None
         else:
-            print("read file: " + self.path)
-        fh = open(self.path, 'rb')
-        content = fh.read()
-        fh.close()
-        return content
+            fh = open(self.path, 'rb')
+            content = fh.read()
+            fh.close()
+            size = humanize.naturalsize(len(content))
+            print(f"read file: {size} " + self.path)
+            return content
 
 
 class BookInfo:
