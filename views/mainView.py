@@ -123,7 +123,7 @@ def book_brief(book):
             ]),
         ], size="85% 15%"),
         put_row([
-            put_image(img.read(), height="240px") for img in book.images[0:2]
+            put_image(img.read(thumb=True), height="240px") for img in book.images[0:2]
         ])
     ], size="1fr 3fr")
     style(brief, 'border: 1px solid; border-radius: 8px; padding: 5px; margin: 4px')

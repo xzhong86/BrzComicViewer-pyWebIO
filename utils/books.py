@@ -9,6 +9,7 @@ import yaml
 
 from utils import unpack
 from utils import database
+from utils import thumbnail
 
 class ImageInfo:
     def __init__(self, dir_path, fname):
@@ -16,12 +17,16 @@ class ImageInfo:
         self.file_name = fname
         self.dir_path  = dir_path
 
-    def read(self):
+    def read(self, thumb=False):
         if (not isfile(self.path)):
             print("bad path: " + self.path)
             return None
         else:
-            fh = open(self.path, 'rb')
+            if (thumb):
+                path = thumbnail.get_thumbnail(self.path)
+            else:
+                path = self.path
+            fh = open(path, 'rb')
             content = fh.read()
             fh.close()
             size = humanize.naturalsize(len(content))
