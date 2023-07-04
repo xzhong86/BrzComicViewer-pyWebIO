@@ -68,7 +68,7 @@ def home_page(index = None):
 
     #index = page_index
     no_prev = index - BPP < 0
-    no_next = index + 1 >= len(books)
+    no_next = index + BPP >= len(books)
     buttons = [
         put_text(str(index) + "/" + str(len(books))),
         put_input("goto", type=NUMBER, value=index),
