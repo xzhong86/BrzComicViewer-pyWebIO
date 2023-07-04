@@ -31,6 +31,7 @@ def view():
     #    ], size="2fr 3fr 3fr 5fr")
     put_row([put_scope("main"), None, put_scope("sidebar")],
                size="13fr 0.3fr 0.8fr")
+    #pywebio.session.defer_call(clean_up)
 
     web_local.home_page_index = 0
     web_local.view_page_index = 0
@@ -43,6 +44,9 @@ def side_bar(items):
         pass
     put_column(items)        
 
+def clean_up():
+    print("in clean_up()")
+    all_books.saveData()
 
 HOME_NROW = 2   # rows in home page
 HOME_BPR  = 3   # books per row
@@ -113,7 +117,10 @@ def book_brief(book):
     brief = put_column([
         put_row([
             put_text(title + "\n" + str(len(book.images)) + "P"),
-            put_button("Go", onclick=partial(view_page, book, 0), link_style=True),
+            put_column([
+                put_button("Open", onclick=partial(view_page, book, 0), link_style=True),
+                put_button("\u2139", onclick=partial(view_book_info, book)),
+            ]),
         ], size="85% 15%"),
         put_row([
             put_image(img.read(), height="240px") for img in book.images[0:2]
@@ -155,8 +162,9 @@ def view_book_info(book):
         ["title:", book.title],
         ["url:",   book.url],
         ["tags:",  ", ".join(book.tags)],
-        ["dir:",   book.name],
-        ["other:", str(len(book.images)) + " images"]
+        #["dir:",   book.name],
+        ["info:",  f"like {book.like}, view {book.view}" ],
+        ["other:", f"{book.dir_name}, images {len(book.images)}"]
     ])
     popup("Book Information:",
           info,

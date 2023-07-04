@@ -1,0 +1,7 @@
+
+env/
+data/
+books/
+packs-*/
+
+__pycache__

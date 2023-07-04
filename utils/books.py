@@ -3,10 +3,12 @@ import os
 import re
 from os.path import isfile, join
 
+import hashlib
 import humanize
 import yaml
 
 from utils import unpack
+from utils import database
 
 class ImageInfo:
     def __init__(self, dir_path, fname):
@@ -26,19 +28,27 @@ class ImageInfo:
             print(f"read file: {size} " + self.path)
             return content
 
+def get_str_hash(_str, len = 8):
+    hash_str = hashlib.md5(_str.encode('utf-8')).hexdigest()
+    len = 16 if len > 16 else len
+    len = 8  if len < 8  else len
+    return hash_str[0:len]
 
 class BookInfo:
-    def __init__(self, path):
+    def __init__(self, path, database):
         self.orig_path = path
+        self.db = database
         if (os.path.isfile(path)):
             tryUnpackBook()
         elif (os.path.isdir(path)):
             self.dir_path = path
+            self.dir_name = os.path.basename(path)
         else:
             raise "what happened?"
 
         self.name = os.path.basename(path)
         self.scanDir()
+        self.updateInfo()
 
     def scanDir(self):
         _dir  = self.dir_path
@@ -59,6 +69,22 @@ class BookInfo:
                 self.title = info[':title']
                 self.tags  = info[':tags']
 
+        self.hash_id = get_str_hash(self.title, 8)
+
+    def updateInfo(self):
+        data = self.db.lookup(self)
+        if (data == None):
+            data = dict(like=0, view=0)
+        self.data = data
+        self.like = data['like']
+        self.view = data['view']
+        # style, quality, story
+
+    def getDataToSave(self):
+        data = dict(like=self.like,
+                    view=self.view)
+        return data
+
     def tryUnpackBook(self):
         raise "to be done"
 
@@ -66,10 +92,15 @@ class BookInfo:
 class BooksInfo:
     def __init__(self):
         self.books = []
+        self.user = 'zpzhong'
+        self.db = database.init(self.user)
+
+    def saveData(self):
+        self.db.saveData(self)
 
     def scanImageFolderInPath(self, path):
         dirs = [d for d in os.listdir(path) if os.path.isdir(join(path, d)) ]
-        books = [ BookInfo(join(path, d)) for d in dirs ]
+        books = [ BookInfo(join(path, d), self.db) for d in dirs ]
         print(str(len(books)) + " books found in " + path)
         books.sort(key=lambda b: b.name)
         self.books += books
@@ -82,7 +113,7 @@ class BooksInfo:
             if (os.path.isfile(item_path) and zip_re.search(item)):
                 bkdir = unpack.unpack_file(item_path, unpack_root)
                 if (bkdir != None):
-                    book  = BookInfo(bkdir)
+                    book  = BookInfo(bkdir, self.db)
                     self.books.append(book)
 
             elif (os.path.isdir(item_path)):
