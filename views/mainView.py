@@ -113,19 +113,18 @@ def list_join(lst, item):
     return newlst
 
 def book_brief(book):
-    title = book.title[0:40] + "..."
+    title = book.title[0:50] + "..."
     brief = put_column([
+        put_text(title),
         put_row([
-            put_text(title + "\n" + str(len(book.images)) + "P"),
-            put_column([
-                put_button("Open", onclick=partial(view_page, book, 0), link_style=True),
-                put_button("\u2139", onclick=partial(view_book_info, book)),
-            ]),
-        ], size="85% 15%"),
+            put_text(f"{len(book.images)}P, like: {book.like}, view: {book.view}"),
+            put_button("\u2139", onclick=partial(view_book_info, book), small=True),
+            put_button("Open", onclick=partial(view_page, book, 0), small=True, outline=True),
+        ], size="8fr 1fr 1fr"),
         put_row([
             put_image(img.read(thumb=True), height="240px") for img in book.images[0:2]
         ])
-    ], size="1fr 3fr")
+    ], size="0.5fr 0.3fr 3fr")
     style(brief, 'border: 1px solid; border-radius: 8px; padding: 5px; margin: 4px')
     return brief
 
