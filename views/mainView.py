@@ -113,7 +113,7 @@ def list_join(lst, item):
     return newlst
 
 def book_brief(book):
-    title = book.title[0:30] + "..."
+    title = book.title[0:40] + "..."
     brief = put_column([
         put_row([
             put_text(title + "\n" + str(len(book.images)) + "P"),

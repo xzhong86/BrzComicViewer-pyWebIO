@@ -110,18 +110,27 @@ class BooksInfo:
         books.sort(key=lambda b: b.name)
         self.books += books
 
-    def scanImagePackInPath(self, dirpath):
-        unpack_root = "books"
+    def scanPacks(self, dirpath):
+        files = []
         zip_re = re.compile("\.(zip|rar|cbz|cbr)$")
         for item in os.listdir(dirpath):
-            item_path = join(dirpath, item)
-            if (os.path.isfile(item_path) and zip_re.search(item)):
-                bkdir = unpack.unpack_file(item_path, unpack_root)
-                if (bkdir != None):
-                    book  = BookInfo(bkdir, self.db)
-                    self.books.append(book)
+            path = join(dirpath, item)
+            if (os.path.isfile(path) and zip_re.search(item)):
+                files.append(path)
+            elif (os.path.isdir(path)):
+                files = files + self.scanPacks(path)
 
-            elif (os.path.isdir(item_path)):
-                self.scanImagePackInPath(item_path)
+        return files
+        
+    def scanImagePackInPath(self, dirpath):
+        unpack_root = "books"
+        files = self.scanPacks(dirpath)
+        files.sort()
+
+        for item_path in files:
+            bkdir = unpack.unpack_file(item_path, unpack_root)
+            if (bkdir != None):
+                book  = BookInfo(bkdir, self.db)
+                self.books.append(book)
                 
 
