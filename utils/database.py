@@ -2,8 +2,6 @@
 
 import json
 
-DATA_FILE = "data/comic-data.json"
-
 class DataBase:
     def __init__(self, path, user):
         self.file_path = path
@@ -30,8 +28,8 @@ class DataBase:
             json.dump(self.all_data, fh, indent=4, sort_keys=True)
 
 
-def init(user):
-    return DataBase(DATA_FILE, user)
+def init(datafile, user):
+    return DataBase(datafile, user)
 
 
 if __name__ == "__main__":

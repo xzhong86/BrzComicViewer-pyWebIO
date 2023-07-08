@@ -5,6 +5,8 @@ global_cfg = dict(
     unpack_dir = "./books",
     unpack_pattern = "book-u{index}-{hash}",
     unpack_update_info = True,
+    default_user = "zpzhong",
+    json_data_file = "data/comic-data.json",
     quiet = True,
 )
 

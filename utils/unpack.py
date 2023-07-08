@@ -7,7 +7,6 @@ import zipfile
 import yaml
 
 from utils import config
-# NAME_PATTERN = "book-u{index}-{hash}"
 
 def unpack_file(filename, outdir=""):
     unpack_dir = get_unpack_dir(filename, outdir)

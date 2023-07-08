@@ -2,9 +2,9 @@
 import sys
 import pywebio
 
-from views import mainView
-from utils import books as ubooks
 from utils import config
+from utils import books as ubooks
+from views import home  as vhome
 
 def init_env():
     cfg = dict(quiet=True)
@@ -17,7 +17,7 @@ def init_env():
     ubooks.setBooksInfo(bsi)
 
 def main():
-    mainView.view()
+    vhome.view()
 
 try:
     init_env()

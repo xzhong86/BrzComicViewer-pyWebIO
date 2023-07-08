@@ -7,11 +7,10 @@ import hashlib
 import humanize
 import yaml
 
+from utils import config
 from utils import unpack
 from utils import database
 from utils import thumbnail
-
-UNPACK_DIR = "./books"
 
 class ImageInfo:
     def __init__(self, dir_path, fname):
@@ -32,7 +31,8 @@ class ImageInfo:
             content = fh.read()
             fh.close()
             size = humanize.naturalsize(len(content))
-            print(f"read file: {size} " + self.path)
+            if not config.opt.quiet:
+                print(f"read file: {size} " + self.path)
             return content
 
 def get_str_hash(_str, len = 8):
@@ -98,8 +98,9 @@ class BookInfo:
 class BooksInfo:
     def __init__(self):
         self.books = []
-        self.user = 'zpzhong'
-        self.db = database.init(self.user)
+        self.user = config.opt.default_user
+        data_file = config.opt.json_data_file
+        self.db = database.init(data_file, self.user)
 
     def saveData(self):
         print("Save data of books.")
@@ -125,7 +126,7 @@ class BooksInfo:
         return files
         
     def scanImagePackInPath(self, dirpath):
-        unpack_root = UNPACK_DIR
+        unpack_root = config.opt.unpack_dir
         files = self.scanPacks(dirpath)
         files.sort()
 

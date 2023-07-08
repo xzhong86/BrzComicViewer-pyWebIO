@@ -10,25 +10,13 @@ from more_itertools import batched
 
 from utils import books as ubooks
 
-
 glb_bsi = None
 
 def view():
     global glb_bsi
     glb_bsi = ubooks.getBooksInfo()
     pywebio.session.set_env(output_max_width="90%")
-    #put_column([put_scope("head"), put_scope("main")],
-    #           size="100px minmax={800px}")
-    # 
-    #with use_scope("head"):
-    #    put_row([
-    #        put_button("Home", onclick=lambda: home_page(0)),
-    #        #put_button("Download", onclick=self.dl_page),
-    #        #put_text("Home"),
-    #        put_text("Previous Book"),
-    #        put_text("Next Book"),
-    #        None
-    #    ], size="2fr 3fr 3fr 5fr")
+
     put_row([put_scope("main"), None, put_scope("sidebar")],
                size="13fr 0.3fr 0.8fr")
     #pywebio.session.defer_call(clean_up)
@@ -103,21 +91,14 @@ def home_page_next():
     index = index + HOME_BPP if index < len(glb_bsi.books) else index
     home_page(index)
 
-
-def list_join(lst, item):
-    newlst = []
-    for e in lst:
-        newlst += [ e, item ]
-    newlst.pop()
-    return newlst
-
 def book_brief(book):
+    from views.viewer import view_page
     title = book.title[0:50] + "..."
     brief = put_column([
         put_text(title),
         put_row([
             put_text(f"{len(book.images)}P, like: {book.like}, view: {book.view}"),
-            put_button("\u2139", onclick=partial(view_book_info, book), small=True),
+            put_button("\u2139", onclick=partial(show_book_info, book), small=True),
             put_button("Open", onclick=partial(view_page, book, 0), small=True, outline=True),
         ], size="8fr 1fr 1fr"),
         put_row([
@@ -127,39 +108,12 @@ def book_brief(book):
     style(brief, 'border: 1px solid; border-radius: 8px; padding: 5px; margin: 4px')
     return brief
 
-@use_scope("main", clear=True)
-def view_page(book, index):
-    if index < 0:
-        index = 0
-    if index >= len(book.images):
-        index = len(book.images)
-
-    images = book.images[index : index+2]
-    it_imgs = [put_image(img.read()) for img in images]
-    it_imgs.insert(1, None)
-
-    put_row(it_imgs, size="48% 4% 48%")
-
-    no_prev_page = index - 1 < 0
-    no_next_page = index + 2 >= len(book.images)
-    buttons = [
-        put_text(str(index) + "/" + str(len(book.images))),
-        put_button("\u2302", onclick=lambda: home_page(None)),
-        put_button("\u2139", onclick=lambda: view_book_info(book)),
-        put_button("\u219e", onclick=lambda: toast("prev book")),
-        put_button("\u21a0", onclick=lambda: toast("next book")),
-        put_button("\u21E4", onclick=lambda: view_page(book, 0), disabled=(index == 0)),  # goto head
-        put_button("\u2190", onclick=lambda: view_page(book, index - 2), disabled=no_prev_page),
-        put_button("\u2192", onclick=lambda: view_page(book, index + 2), disabled=no_next_page),
-    ]
-    side_bar(buttons)
-
 def put_score_radio(name, max_score, cur_score):
     items = [ dict(label=str(n), value=n, selected=(n == cur_score))
               for n in range(1, max_score+1) ]
     return put_radio("book_score_" + name, items, inline=True)
 
-def view_book_info(book):
+def show_book_info(book):
     info = put_table([
         ["Attr",   "Description"],
         ["title:", book.title],
