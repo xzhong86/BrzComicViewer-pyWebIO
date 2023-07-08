@@ -8,22 +8,23 @@ class DataBase:
         self.user = user
         with open(path, 'r') as fh:
             self.all_data  = json.load(fh)
-            self.user_data = self.all_data[user]
+            self.user_data = self.all_data.get(user) or {}
 
     def lookup(self, book):
         data = self.user_data
-        if (book.hash_id in data):
-            return data[book.hash_id]
-        if (book.name in data):
-            return data[book.name]
-        return None
+        return data.get(book.hash_id) or data.get(book.name) or None
 
-    def saveData(self, books):
-        data = {}
-        for book in books.books:
-            data[book.hash_id] = book.getDataToSave()
-        self.all_data[self.user] = data
+    def saveData(self, bsi):
+        books_data = {}
+        for book in bsi.books:
+            data = book.getDataToSave()
+            if data:
+                books_data[book.hash_id] = data
 
+        for key, value in books_data.items():
+            self.user_data[key] = value
+
+        self.all_data[self.user] = self.user_data
         with open(self.file_path, 'w') as fh:
             json.dump(self.all_data, fh, indent=4, sort_keys=True)
 

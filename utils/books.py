@@ -51,9 +51,12 @@ class BookInfo:
             self.dir_path = path
             self.dir_name = os.path.basename(path)
         else:
-            raise "what happened?"
+             raise "what happened?"
 
         self.name = os.path.basename(path)
+        self.data_items = dict(
+            like=0, view=0, style=0, quality=0, sotry=0, desc="", tags=[]
+        )
         self.scanDir()
         self.updateInfo()
 
@@ -67,29 +70,33 @@ class BookInfo:
 
         self.url = None
         self.title = self.name
-        self.tags = [ ]
+        self.orig_tags = [ ]
         info_file = join(_dir, "info.yaml")
         if (isfile(info_file)):
             with open(info_file) as stream:
                 info = yaml.safe_load(stream)
                 self.url   = info[':url']
                 self.title = info[':title']
-                self.tags  = info[':tags']
+                self.orig_tags  = info[':tags']
 
-        self.hash_id = get_str_hash(self.title, 8)
+        self.hash_id = get_str_hash(self.title, 12)
 
     def updateInfo(self):
-        data = self.db.lookup(self)
-        if (data == None):
-            data = dict(like=0, view=0)
+        data = self.db.lookup(self) or {}
+
+        for item, val in self.data_items.items():
+            if not item in data:
+                data[item] = val
+
         self.data = data
-        for item in ["like", "view", "style", "quality", "story"]:
-            setattr(self, item, data.get(item) or 0)
+        for item, value in data.items():
+            setattr(self, item, value)
 
     def getDataToSave(self):
-        items = ["like", "view", "style", "quality", "story"]
-        data  = { item : getattr(self, item) for item in items }
-        return data
+        data  = { item : getattr(self, item) for item in self.data_items }
+        valid_cnt = len([ v for v in data.values() if v ])
+        return data if valid_cnt > 0 else None
+        #return data
 
     def tryUnpackBook(self):
         raise "to be done"

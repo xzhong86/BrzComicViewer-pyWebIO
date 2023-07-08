@@ -32,8 +32,6 @@ def side_bar(items):
         pass
     put_column(items)        
 
-def clean_up():
-    print("nothing in clean_up()")
 
 HOME_NROW = 2   # rows in home page
 HOME_BPR  = 3   # books per row
@@ -93,12 +91,13 @@ def home_page_next():
 
 def book_brief(book):
     from views.viewer import view_page
+    from views.book_info import show_info
     title = book.title[0:50] + "..."
     brief = put_column([
         put_text(title),
         put_row([
             put_text(f"{len(book.images)}P, like: {book.like}, view: {book.view}"),
-            put_button("\u2139", onclick=partial(show_book_info, book), small=True),
+            put_button("\u2139", onclick=partial(show_info, book), small=True),
             put_button("Open", onclick=partial(view_page, book, 0), small=True, outline=True),
         ], size="8fr 1fr 1fr"),
         put_row([
@@ -107,26 +106,4 @@ def book_brief(book):
     ], size="0.5fr 0.3fr 3fr")
     style(brief, 'border: 1px solid; border-radius: 8px; padding: 5px; margin: 4px')
     return brief
-
-def put_score_radio(name, max_score, cur_score):
-    items = [ dict(label=str(n), value=n, selected=(n == cur_score))
-              for n in range(1, max_score+1) ]
-    return put_radio("book_score_" + name, items, inline=True)
-
-def show_book_info(book):
-    info = put_table([
-        ["Attr",   "Description"],
-        ["title:", book.title],
-        ["url:",   book.url],
-        ["tags:",  ", ".join(book.tags)],
-        ["like:",  put_score_radio("like", 5, book.like)],
-        ["story:", put_score_radio("story", 5, 3)],
-        ["style:", put_score_radio("style", 5, 3)],
-        ["quality:", put_score_radio("quality", 5, 3)],
-        ["info:",  f"like {book.like}, view {book.view}" ],
-        ["other:", f"{book.dir_name}, images {len(book.images)}"]
-    ])
-    popup("Book Information:",
-          info,
-          size="normal")
 

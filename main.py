@@ -25,6 +25,5 @@ try:
 
 except KeyboardInterrupt:
     print("User Interrupt, exit.")
-    mainView.clean_up()
     ubooks.getBooksInfo().saveData()
     sys.exit(0)
