@@ -55,7 +55,7 @@ class BookInfo:
 
         self.name = os.path.basename(path)
         self.data_items = dict(
-            like=0, view=0, style=0, quality=0, sotry=0, desc="", tags=[]
+            like=0, view=0, style=0, quality=0, story=0, desc="", tags=[]
         )
         self.scanDir()
         self.updateInfo()
@@ -73,7 +73,7 @@ class BookInfo:
         self.orig_tags = [ ]
         info_file = join(_dir, "info.yaml")
         if (isfile(info_file)):
-            with open(info_file) as stream:
+            with open(info_file, encoding='utf-8') as stream:
                 info = yaml.safe_load(stream)
                 self.url   = info[':url']
                 self.title = info[':title']
@@ -89,14 +89,14 @@ class BookInfo:
                 data[item] = val
 
         self.data = data
-        for item, value in data.items():
-            setattr(self, item, value)
+        for item in self.data_items:
+            setattr(self, item, data.get(item))
 
     def getDataToSave(self):
         data  = { item : getattr(self, item) for item in self.data_items }
         valid_cnt = len([ v for v in data.values() if v ])
+        data["title"] = self.title
         return data if valid_cnt > 0 else None
-        #return data
 
     def tryUnpackBook(self):
         raise "to be done"

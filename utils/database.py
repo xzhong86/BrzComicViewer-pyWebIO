@@ -6,7 +6,7 @@ class DataBase:
     def __init__(self, path, user):
         self.file_path = path
         self.user = user
-        with open(path, 'r') as fh:
+        with open(path, 'r', encoding='utf-8') as fh:
             self.all_data  = json.load(fh)
             self.user_data = self.all_data.get(user) or {}
 
@@ -25,8 +25,8 @@ class DataBase:
             self.user_data[key] = value
 
         self.all_data[self.user] = self.user_data
-        with open(self.file_path, 'w') as fh:
-            json.dump(self.all_data, fh, indent=4, sort_keys=True)
+        with open(self.file_path, 'w', encoding='utf-8') as fh:
+            json.dump(self.all_data, fh, indent=4, sort_keys=True, ensure_ascii=False)
 
 
 def init(datafile, user):

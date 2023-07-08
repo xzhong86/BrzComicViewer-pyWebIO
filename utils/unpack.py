@@ -30,8 +30,8 @@ def gen_book_info(filename, unpack_dir):
     title = os.path.basename(filename)
     url   = "file://" + filename
     info = { ":title" : title, ":url" : url, ":tags" : [] }
-    fh = open(os.path.join(unpack_dir, "info.yaml"), 'w')
-    yaml.safe_dump(info, fh)
+    fh = open(os.path.join(unpack_dir, "info.yaml"), 'w', encoding='utf-8')
+    yaml.safe_dump(info, fh, allow_unicode=True)
     fh.close()
 
 def get_filename_hash(filename):
