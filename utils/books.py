@@ -6,6 +6,7 @@ from os.path import isfile, join
 import hashlib
 import humanize
 import yaml
+from datetime import datetime
 
 from utils import config
 from utils import unpack
@@ -59,6 +60,7 @@ class BookInfo:
             like=0, style=0, quality=0, story=0
         )
         self.scanDir()
+        self.guessBirthTime()
         self.updateInfo()
 
     def scanDir(self):
@@ -68,19 +70,31 @@ class BookInfo:
         imgs  = [f for f in files if re_ext.search(f) ]
         imgs.sort()
         self.images = [ ImageInfo(_dir, img) for img in imgs ]
+        self.image_num = len(self.images)
 
         self.url = None
         self.title = self.name
         self.orig_tags = [ ]
         info_file = join(_dir, "info.yaml")
         if (isfile(info_file)):
-            with open(info_file, encoding='utf-8') as stream:
-                info = yaml.safe_load(stream)
-                self.url   = info[':url']
-                self.title = info[':title']
-                self.orig_tags  = info[':tags']
-
+            self.loadInfo(info_file)
         self.hash_id = get_str_hash(self.title, 12)
+
+    def guessBirthTime(self):
+        birth_time = self.base_info.get('birth_time')
+        if birth_time:
+            self.birth_time = datetime.fromisoformat(birth_time)
+        else:
+            stat = os.stat(self.dir_path)
+            self.birth_time = datetime.fromtimestamp(stat.st_birthtime)
+
+    def loadInfo(self, info_file):
+        with open(info_file, encoding='utf-8') as stream:
+            info = yaml.safe_load(stream)
+            self.url   = info[':url']
+            self.title = info[':title']
+            self.orig_tags  = info[':tags']
+            self.base_info  = info
 
     def updateInfo(self):
         data = self.db.lookup(self) or {}
@@ -110,9 +124,26 @@ class BooksInfo:
         data_file = config.opt.json_data_file
         self.db = database.init(data_file, self.user)
 
+    def setHomeIndex(self, index, num):
+        rend  = index + num if index + num < len(self.books) else len(self.books)
+        books = [ self.books[i].hash_id for i in range(index, rend) ]
+        self.home_index_books = books
+
+    def getHomeIndex(self):
+        udata = self.db.getUserData()
+        index_books = udata.get("home_index_books")
+        if not index_books:
+            return None
+        else:
+            for book, idx in zip(self.books, range(0, len(self.books))):
+                if book.hash_id in index_books:
+                    return idx
+            return None
+
     def saveData(self):
         print("Save data of books.")
-        self.db.saveData(self)
+        data = { "home_index_books" : self.home_index_books }
+        self.db.saveData(self, data)
 
     def scanImageFolderInPath(self, path):
         dirs = [d for d in os.listdir(path) if os.path.isdir(join(path, d)) ]

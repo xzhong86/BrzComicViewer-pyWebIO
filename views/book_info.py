@@ -33,8 +33,8 @@ def show_info(book):
         ["story:", put_score_radio("story", 5, book.story) ],
         ["style:", put_score_radio("style", 5, book.style) ],
         ["quality:", put_score_radio("quality", 5, book.quality)],
-        ["info:",  f"like {book.like}, view {book.view}" ],
-        ["other:", f"{book.dir_name}, images {len(book.images)}, page_viewed {book.page_viewed}"]
+        ["info:",  f"view: {book.view}, {book.image_num} pages, {book.page_viewed} page viewed" ],
+        ["other:", f"{book.dir_name}, {book.birth_time.isoformat()}"]
     ])
     popup("Book Information:",
           [

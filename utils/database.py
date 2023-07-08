@@ -14,7 +14,10 @@ class DataBase:
         data = self.user_data
         return data.get(book.hash_id) or data.get(book.name) or None
 
-    def saveData(self, bsi):
+    def getUserData(self):
+        return self.user_data
+
+    def saveData(self, bsi, bsi_data):
         books_data = {}
         for book in bsi.books:
             data = book.getDataToSave()
@@ -22,6 +25,9 @@ class DataBase:
                 books_data[book.hash_id] = data
 
         for key, value in books_data.items():
+            self.user_data[key] = value
+
+        for key, value in bsi_data.items():
             self.user_data[key] = value
 
         self.all_data[self.user] = self.user_data

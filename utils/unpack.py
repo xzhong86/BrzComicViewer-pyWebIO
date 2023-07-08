@@ -5,6 +5,7 @@ import hashlib
 import glob
 import zipfile
 import yaml
+from datetime import datetime
 
 from utils import config
 
@@ -27,9 +28,13 @@ def unpack_file(filename, outdir=""):
     return unpack_dir
 
 def gen_book_info(filename, unpack_dir):
+    stats = os.stat(filename)
+    birth_time = stats.st_birthtime
+    birth_time = datetime.fromtimestamp(birth_time).isoformat()
     title = os.path.basename(filename)
     url   = "file://" + filename
     info = { ":title" : title, ":url" : url, ":tags" : [] }
+    info["birth_time"] = birth_time
     fh = open(os.path.join(unpack_dir, "info.yaml"), 'w', encoding='utf-8')
     yaml.safe_dump(info, fh, allow_unicode=True)
     fh.close()

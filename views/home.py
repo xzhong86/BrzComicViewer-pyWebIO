@@ -21,7 +21,7 @@ def view():
                size="13fr 0.3fr 0.8fr")
     #pywebio.session.defer_call(clean_up)
 
-    web_local.home_page_index = 0
+    web_local.home_page_index = glb_bsi.getHomeIndex() or 0
     web_local.view_page_index = 0
     web_local.view_book_index = 0
     home_page()
@@ -41,7 +41,15 @@ HOME_BPP  = HOME_NROW * HOME_BPR # books per page
 def home_page(index = None):
     if (index == None):
         index = web_local.home_page_index
+
     books = glb_bsi.books
+    books_num = len(books)
+    last_idx  = books_num - 1
+
+    index = 0 if index < 0 else index
+    index = last_idx if index > last_idx else index
+    index = index - index % HOME_BPP  # align index
+
     BPP = HOME_BPP
     contents = []
     for idx in range(index, index + BPP):
@@ -54,12 +62,17 @@ def home_page(index = None):
         put_row(r) for r in batched(contents, HOME_BPR)
     ])
     web_local.home_page_index = index
+    glb_bsi.setHomeIndex(index, BPP)
 
-    #index = page_index
+    show_sidebar(index)
+
+def show_sidebar(index):
+    BPP     = HOME_BPP
+    nr_books = len(glb_bsi.books)
     no_prev = index - BPP < 0
-    no_next = index + BPP >= len(books)
+    no_next = index + BPP >= nr_books
     buttons = [
-        put_text(str(index) + "/" + str(len(books))),
+        put_text(str(index) + "/" + str(nr_books)),
         put_input("goto", type=NUMBER, value=index),
         put_button("Go", onclick=home_page_goto),
         None,
