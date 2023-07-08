@@ -8,14 +8,14 @@ from pywebio.session import local as web_local
 from functools import partial
 from more_itertools import batched
 
-from utils.books import BooksInfo
+from utils import books as ubooks
 
 
-all_books = BooksInfo()
-#all_books.scanImageFolderInPath("./books")
-all_books.scanImagePackInPath("./packs-cn")
+glb_bsi = None
 
 def view():
+    global glb_bsi
+    glb_bsi = ubooks.getBooksInfo()
     pywebio.session.set_env(output_max_width="90%")
     #put_column([put_scope("head"), put_scope("main")],
     #           size="100px minmax={800px}")
@@ -45,8 +45,7 @@ def side_bar(items):
     put_column(items)        
 
 def clean_up():
-    print("in clean_up()")
-    all_books.saveData()
+    print("nothing in clean_up()")
 
 HOME_NROW = 2   # rows in home page
 HOME_BPR  = 3   # books per row
@@ -56,7 +55,7 @@ HOME_BPP  = HOME_NROW * HOME_BPR # books per page
 def home_page(index = None):
     if (index == None):
         index = web_local.home_page_index
-    books = all_books.books
+    books = glb_bsi.books
     BPP = HOME_BPP
     contents = []
     for idx in range(index, index + BPP):
@@ -88,7 +87,7 @@ def home_page(index = None):
 def home_page_goto():
     index = pin.goto
     index = index if index > 0 else 0
-    if (index >= len(all_books.books)):
+    if (index >= len(glb_bsi.books)):
         toast("book index over max!")
     else:
         index = index - index % HOME_BPP
@@ -101,7 +100,7 @@ def home_page_prev():
 
 def home_page_next():
     index = web_local.home_page_index
-    index = index + HOME_BPP if index < len(all_books.books) else index
+    index = index + HOME_BPP if index < len(glb_bsi.books) else index
     home_page(index)
 
 
@@ -155,13 +154,21 @@ def view_page(book, index):
     ]
     side_bar(buttons)
 
+def put_score_radio(name, max_score, cur_score):
+    items = [ dict(label=str(n), value=n, selected=(n == cur_score))
+              for n in range(1, max_score+1) ]
+    return put_radio("book_score_" + name, items, inline=True)
+
 def view_book_info(book):
     info = put_table([
         ["Attr",   "Description"],
         ["title:", book.title],
         ["url:",   book.url],
         ["tags:",  ", ".join(book.tags)],
-        #["dir:",   book.name],
+        ["like:",  put_score_radio("like", 5, book.like)],
+        ["story:", put_score_radio("story", 5, 3)],
+        ["style:", put_score_radio("style", 5, 3)],
+        ["quality:", put_score_radio("quality", 5, 3)],
         ["info:",  f"like {book.like}, view {book.view}" ],
         ["other:", f"{book.dir_name}, images {len(book.images)}"]
     ])

@@ -6,7 +6,8 @@ import glob
 import zipfile
 import yaml
 
-NAME_PATTERN = "book-u{index}-{hash}"
+from utils import config
+# NAME_PATTERN = "book-u{index}-{hash}"
 
 def unpack_file(filename, outdir=""):
     unpack_dir = get_unpack_dir(filename, outdir)
@@ -18,7 +19,7 @@ def unpack_file(filename, outdir=""):
     if (zipfile.is_zipfile(filename)):
         unpack_zip(filename, unpack_dir)
     else:
-        print("unknown file type")
+        print(f"unknown file type: {filename}")
         return None
 
     gen_book_info(filename, unpack_dir)
@@ -50,13 +51,15 @@ def get_unpack_dir(filename, outdir):
         if (m != None):
             idx, hid = int(m[1]), m[2]
             if (hid == hash_id):
-                print(f"book {item} possiblly is {filename}")
+                if not config.opt.quiet:
+                    print(f"book {item} possiblly is {filename}")
                 return item
             if (idx > max_idx):
                 max_idx = idx
 
     book_idx = "%03d" % (max_idx + 1)
-    dir_name = NAME_PATTERN.format(index=book_idx, hash=hash_id)
+    name_pattern = config.opt.unpack_pattern
+    dir_name = name_pattern.format(index=book_idx, hash=hash_id)
     return os.path.join(outdir, dir_name)
 
 def unpack_zip(filename, unpack_dir):

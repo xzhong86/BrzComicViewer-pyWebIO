@@ -11,6 +11,8 @@ from utils import unpack
 from utils import database
 from utils import thumbnail
 
+UNPACK_DIR = "./books"
+
 class ImageInfo:
     def __init__(self, dir_path, fname):
         self.path = join(dir_path, fname)
@@ -81,13 +83,12 @@ class BookInfo:
         if (data == None):
             data = dict(like=0, view=0)
         self.data = data
-        self.like = data['like']
-        self.view = data['view']
-        # style, quality, story
+        for item in ["like", "view", "style", "quality", "story"]:
+            setattr(self, item, data.get(item) or 0)
 
     def getDataToSave(self):
-        data = dict(like=self.like,
-                    view=self.view)
+        items = ["like", "view", "style", "quality", "story"]
+        data  = { item : getattr(self, item) for item in items }
         return data
 
     def tryUnpackBook(self):
@@ -101,6 +102,7 @@ class BooksInfo:
         self.db = database.init(self.user)
 
     def saveData(self):
+        print("Save data of books.")
         self.db.saveData(self)
 
     def scanImageFolderInPath(self, path):
@@ -123,7 +125,7 @@ class BooksInfo:
         return files
         
     def scanImagePackInPath(self, dirpath):
-        unpack_root = "books"
+        unpack_root = UNPACK_DIR
         files = self.scanPacks(dirpath)
         files.sort()
 
@@ -134,3 +136,10 @@ class BooksInfo:
                 self.books.append(book)
                 
 
+glb_books_info = None
+def setBooksInfo(bsi):
+    global glb_books_info
+    glb_books_info = bsi
+
+def getBooksInfo():
+    return glb_books_info
