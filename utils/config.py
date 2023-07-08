@@ -4,6 +4,7 @@ global_cfg = dict(
     books_dir  = "./books",
     unpack_dir = "./books",
     unpack_pattern = "book-u{index}-{hash}",
+    unpack_update_info = True,
     quiet = True,
 )
 

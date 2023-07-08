@@ -14,6 +14,8 @@ def unpack_file(filename, outdir=""):
     if (unpack_dir == None):
         return None
     if (os.path.isdir(unpack_dir)):
+        if config.opt.unpack_update_info:
+            gen_book_info(filename, unpack_dir)
         return unpack_dir
 
     if (zipfile.is_zipfile(filename)):
@@ -27,16 +29,17 @@ def unpack_file(filename, outdir=""):
 
 def gen_book_info(filename, unpack_dir):
     title = os.path.basename(filename)
-    info = { ":title" : title, ":url" : "", ":tags" : [] }
+    url   = "file://" + filename
+    info = { ":title" : title, ":url" : url, ":tags" : [] }
     fh = open(os.path.join(unpack_dir, "info.yaml"), 'w')
     yaml.safe_dump(info, fh)
     fh.close()
 
 def get_filename_hash(filename):
-    basename = os.path.basename(filename)
-    hash_str = hashlib.md5(filename.encode('utf-8')).hexdigest()
+    name_str = os.path.basename(filename)
+    hash_str = hashlib.md5(name_str.encode('utf-8')).hexdigest()
     return hash_str[0:8]
-
+ 
 def get_unpack_dir(filename, outdir):
     if (not os.path.isdir(outdir)):
         print(f'path {outdir} not exists!')
@@ -54,6 +57,7 @@ def get_unpack_dir(filename, outdir):
                 if not config.opt.quiet:
                     print(f"book {item} possiblly is {filename}")
                 return item
+
             if (idx > max_idx):
                 max_idx = idx
 

@@ -12,7 +12,8 @@ def init_env():
 
     bsi = ubooks.BooksInfo()
     #bsi.scanImageFolderInPath("./books")
-    bsi.scanImagePackInPath("./packs-cn")
+    #bsi.scanImagePackInPath("./packs-cn")
+    bsi.scanImagePackInPath("./packs-safe")
     ubooks.setBooksInfo(bsi)
 
 def main():
