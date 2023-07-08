@@ -1,4 +1,5 @@
 
+import re
 from pywebio.pin import  *
 from pywebio.output import  *
 from functools import partial
@@ -12,25 +13,33 @@ def update_info(book):
     for item in ["like", "story", "style", "quality"]:
         value = pin["book_score_" + item]
         setattr(book, item, value)
+    book.desc = pin.book_desc
+    re_spc = re.compile(r'\s+')
+    re_sep = re.compile(r'\s*,\s*')
+    tags_str = re_spc.sub(' ', pin.book_tags)
+    tags     = re_sep.split(tags_str)
+    book.tags = tags
     close_popup()
 
 def show_info(book):
+    tags_str = ", ".join(book.tags)
     info_table = put_table([
         ["Attr",   "Description"],
         ["title:", book.title],
         ["url:",   book.url],
-        ["tags:",  ", ".join(book.tags)],
+        ["desc:",  put_input("book_desc", value=book.desc)],
+        ["tags:",  put_input("book_tags", value=tags_str)],
         ["like:",  put_score_radio("like", 5,  book.like) ],
         ["story:", put_score_radio("story", 5, book.story) ],
         ["style:", put_score_radio("style", 5, book.style) ],
         ["quality:", put_score_radio("quality", 5, book.quality)],
         ["info:",  f"like {book.like}, view {book.view}" ],
-        ["other:", f"{book.dir_name}, images {len(book.images)}"]
+        ["other:", f"{book.dir_name}, images {len(book.images)}, page_viewed {book.page_viewed}"]
     ])
     popup("Book Information:",
           [
               info_table,
               put_button("Update", onclick=partial(update_info, book))
           ],
-          size="normal")
+          size="large")
 

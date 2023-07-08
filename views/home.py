@@ -90,7 +90,7 @@ def home_page_next():
     home_page(index)
 
 def book_brief(book):
-    from views.viewer import view_page
+    from views.viewer import view_book
     from views.book_info import show_info
     title = book.title[0:50] + "..."
     brief = put_column([
@@ -98,7 +98,7 @@ def book_brief(book):
         put_row([
             put_text(f"{len(book.images)}P, like: {book.like}, view: {book.view}"),
             put_button("\u2139", onclick=partial(show_info, book), small=True),
-            put_button("Open", onclick=partial(view_page, book, 0), small=True, outline=True),
+            put_button("Open", onclick=partial(view_book, book), small=True, outline=True),
         ], size="8fr 1fr 1fr"),
         put_row([
             put_image(img.read(thumb=True), height="240px") for img in book.images[0:2]

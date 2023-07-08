@@ -18,6 +18,7 @@ def view_page(book, index):
     if index >= len(book.images):
         index = len(book.images)
 
+    book.page_viewed = index
     images = book.images[index : index+2]
     it_imgs = [put_image(img.read()) for img in images]
     it_imgs.insert(1, None)
@@ -47,4 +48,9 @@ def goto_page(book):
     last_idx = len(book.images) - 1
     index = last_idx if index > last_idx else index
     index = index - index % IPP  # align index
+    view_page(book, index)
+
+def view_book(book):
+    book.view = book.view + 1
+    index = book.page_viewed or 0
     view_page(book, index)

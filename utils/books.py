@@ -55,7 +55,8 @@ class BookInfo:
 
         self.name = os.path.basename(path)
         self.data_items = dict(
-            like=0, view=0, style=0, quality=0, story=0, desc="", tags=[]
+            desc="", tags=[], view=0, page_viewed=0,
+            like=0, style=0, quality=0, story=0
         )
         self.scanDir()
         self.updateInfo()
