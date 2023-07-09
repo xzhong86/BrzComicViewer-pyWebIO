@@ -77,6 +77,8 @@ def show_sidebar(index):
         put_button("Go", onclick=home_page_goto),
         None,
         #put_button("\u2302", onclick=lambda: home_page(0)),
+        put_button("Y", onclick=lambda: toast("filter/sort page")),
+        put_button("Search", onclick=lambda: toast("find page")),
         put_button("\u21E4", onclick=lambda: home_page(0), disabled=(index == 0)),  # goto head
         put_button("\u2190", onclick=home_page_prev, disabled=no_prev),
         put_button("\u2192", onclick=home_page_next, disabled=no_next),

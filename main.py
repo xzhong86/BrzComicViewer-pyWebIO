@@ -1,5 +1,6 @@
 
 import sys
+import atexit
 import pywebio
 
 from utils import config
@@ -16,7 +17,13 @@ def init_env():
     bsi.scanImagePackInPath("./packs-safe")
     ubooks.setBooksInfo(bsi)
 
+    atexit.register(do_cleanup)
+
+def do_cleanup():
+    print("do cleanup")
+
 def main():
+    pywebio.session.defer_call(do_cleanup)
     vhome.view()
 
 try:

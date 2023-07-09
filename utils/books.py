@@ -43,9 +43,10 @@ def get_str_hash(_str, len = 8):
     return hash_str[0:len]
 
 class BookInfo:
-    def __init__(self, path, database):
+    def __init__(self, path, bsi):
         self.orig_path = path
-        self.db = database
+        self.bsi = bsi
+        self.db = bsi.db
         if (os.path.isfile(path)):
             tryUnpackBook()
         elif (os.path.isdir(path)):
@@ -116,6 +117,9 @@ class BookInfo:
     def tryUnpackBook(self):
         raise "to be done"
 
+    def dataUpdated(self):
+        self.bsi.saveData()
+
 
 class BooksInfo:
     def __init__(self):
@@ -123,6 +127,7 @@ class BooksInfo:
         self.user = config.opt.default_user
         data_file = config.opt.json_data_file
         self.db = database.init(data_file, self.user)
+        self.home_index_books = []
 
     def setHomeIndex(self, index, num):
         rend  = index + num if index + num < len(self.books) else len(self.books)
@@ -142,12 +147,14 @@ class BooksInfo:
 
     def saveData(self):
         print("Save data of books.")
-        data = { "home_index_books" : self.home_index_books }
+        data = { }
+        if self.home_index_books:
+            data["home_index_books"] = self.home_index_books
         self.db.saveData(self, data)
 
     def scanImageFolderInPath(self, path):
         dirs = [d for d in os.listdir(path) if os.path.isdir(join(path, d)) ]
-        books = [ BookInfo(join(path, d), self.db) for d in dirs ]
+        books = [ BookInfo(join(path, d), self) for d in dirs ]
         print(str(len(books)) + " books found in " + path)
         books.sort(key=lambda b: b.name)
         self.books += books
@@ -172,7 +179,7 @@ class BooksInfo:
         for item_path in files:
             bkdir = unpack.unpack_file(item_path, unpack_root)
             if (bkdir != None):
-                book  = BookInfo(bkdir, self.db)
+                book  = BookInfo(bkdir, self)
                 self.books.append(book)
                 
 

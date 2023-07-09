@@ -19,6 +19,7 @@ def update_info(book):
     tags_str = re_spc.sub(' ', pin.book_tags)
     tags     = re_sep.split(tags_str)
     book.tags = tags
+    book.dataUpdated()
     close_popup()
 
 def show_info(book):
